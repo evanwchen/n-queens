@@ -38,28 +38,74 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
+  if (n===2) debugger;
   // total solutions count
-  var solutionCount = undefined;
-  // set up initial board to begin testing
-  var initialBoard = [];
-  
-  for (var i = 0; i < n; i++) {
-    initialBoard.push([]);
-    for (var j = 0; j < n; j++) {
-      initialBoard[i].push(0);
-    }
-  }
+  var solutionCount = 0;
+
   // create an empty board
-  var solution = new Board(initialBoard);
+  var solution = new Board({n:n});
 
-  var checkRemaining = function(board, startX, startY) {
-    // base case when startX and startY both equal n - 1;
-      // reset solution to new Board(initialBoard)
-
+  var checkRemaining = function(board, startX, startY, countRooks) {
+    // base case is if startX and startY both equal n-1
+    if (startX === n-1 && startY === n-1) {
+      // add rook at startX, startY
+      board.togglePiece(startX, startY);
+      countRooks++;
+      // If there are conflicts
+      if (board.hasAnyRowConflicts() || board.hasAnyColConflicts()) {
+        // return
+        return;
+      } else if (countRooks === n) { // else if countRooks == n
+        // solutionCount++
+        solutionCount++;
+        // return;
+        return;
+      } else {
+        return;
+      }
+    }
+    // add rook at startX, startY
+    board.togglePiece(startX, startY); 
+    countRooks++; 
+    // if there are conflicts
+    if (board.hasAnyRowConflicts() || board.hasAnyColConflicts()) {
+      // remove rook
+      board.togglePiece(startX, startY); 
+      // increase startX/startY; 
+      if (startX === n-1) {
+        checkRemaining(board, 0, startY + 1, countRooks);
+      } else {
+        checkRemaining(board, startX + 1, startY, countRooks);
+      }
+    }
+    // else if no conflicts
+    else {
+      // if rooksCount === n
+      if (countRooks === n) {
+        solutionCount++;
+        // return
+        return;
+      }
+      // increase startX/startY
+      if (startX === n-1) {
+        var newX = startX;
+        var newY = startY+1;
+      } else {
+        var newX = startX+1;
+        var newY = startY;
+      }
+      // create newBoard(board.rows())
+      var newBoard = new Board(board.rows());
+      // recurse with (newBoard, newStartX/StartY, countRooks)
+      checkRemaining(newBoard, newX, newY, countRooks);
+      // remove the most recent rook from startX, startY
+      board.togglePiece(startX, startY);
+      // recurse with (board, newStartX/startY, countRooks);
+      checkRemaining(board, newX, newY, countRooks-1);
+    }
   };
 
-  // call checkRemaining from solution, 0, 0
-  checkRemaining(solution, 0, 0);
+  checkRemaining(solution, 0, 0, 0);
 
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
