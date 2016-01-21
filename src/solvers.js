@@ -38,7 +38,7 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  if (n===2) debugger;
+  if (n==2) debugger;
   // total solutions count
   var solutionCount = 0;
 
@@ -49,7 +49,7 @@ window.countNRooksSolutions = function(n) {
     // base case is if startX and startY both equal n-1
     if (startX === n-1 && startY === n-1) {
       // add rook at startX, startY
-      board.togglePiece(startX, startY);
+      board.togglePiece(startY, startX);
       countRooks++;
       // If there are conflicts
       if (board.hasAnyRowConflicts() || board.hasAnyColConflicts()) {
@@ -65,12 +65,13 @@ window.countNRooksSolutions = function(n) {
       }
     }
     // add rook at startX, startY
-    board.togglePiece(startX, startY); 
+    board.togglePiece(startY, startX); 
     countRooks++; 
     // if there are conflicts
     if (board.hasAnyRowConflicts() || board.hasAnyColConflicts()) {
       // remove rook
-      board.togglePiece(startX, startY); 
+      board.togglePiece(startY, startX); 
+      countRooks--;
       // increase startX/startY; 
       if (startX === n-1) {
         checkRemaining(board, 0, startY + 1, countRooks);
@@ -88,7 +89,7 @@ window.countNRooksSolutions = function(n) {
       }
       // increase startX/startY
       if (startX === n-1) {
-        var newX = startX;
+        var newX = 0;
         var newY = startY+1;
       } else {
         var newX = startX+1;
@@ -96,12 +97,14 @@ window.countNRooksSolutions = function(n) {
       }
       // create newBoard(board.rows())
       var newBoard = new Board(board.rows());
+      var newBoard2 = new Board(board.rows());
+      newBoard2.togglePiece(startY, startX);
       // recurse with (newBoard, newStartX/StartY, countRooks)
       checkRemaining(newBoard, newX, newY, countRooks);
       // remove the most recent rook from startX, startY
-      board.togglePiece(startX, startY);
+      debugger;
       // recurse with (board, newStartX/startY, countRooks);
-      checkRemaining(board, newX, newY, countRooks-1);
+      checkRemaining(newBoard2, newX, newY, countRooks-1);
     }
   };
 
