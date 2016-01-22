@@ -79,43 +79,56 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return this.rows()[rowIndex].reduce(function(sum, item) {
-        return sum + item;
-      }, 0) > 1;
+      var row = this.get(rowIndex);
+      var count = 0;
+
+      for (var i = 0; i < row.length; i++) {
+        count += row[i];
+      }
+
+      return count > 1;
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      if (this.rows().length === 1) {
-        return false;
+      var size = this.get('n');
+
+      for (var i = 0; i < size; i++) {
+        if (this.hasRowConflictAt(i)) {
+          return true;
+        }
       }
 
-      return this.rows().reduce(function(hasConflict, _, i) {
-        return hasConflict ? true : this.hasRowConflictAt.call(this, i);
-      }.bind(this), false);
+      return false;
     },
-
-
 
     // COLUMNS - run from top to bottom
     // --------------------------------------------------------------
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-      return this.rows().reduce(function(sum, row) {
-        return sum + row[colIndex];
-      }, false) > 1;
+      var size = this.get('n');
+      var count = 0;
+
+      for (var i = 0; i < size; i++) {
+        var row = this.get(i);
+        count += row[colIndex];
+      }
+
+      return count > 1;
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
-      if (this.rows().length === 1) {
-        return false;
+      var size = this.get('n');
+
+      for (var i = 0; i < size; i++) {
+        if (this.hasColConflictAt(i)) {
+          return true;
+        }
       }
 
-      return this.rows().reduce(function(hasConflict, _, i) {
-        return hasConflict ? true : this.hasColConflictAt.call(this, i);
-      }.bind(this), false);
+      return false;
     },
 
     // Major Diagonals - go from top-left to bottom-right
