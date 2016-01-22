@@ -17,22 +17,40 @@ Board.prototype.toggle = function(y, x) {
 };
 
 window.findNRooksSolution = function(n) {
-  var countRooks = 0;
+  var solution;
 
-  var solution = new Board({n:n}); //matrix of one solution
-  for (i = 0; i < n; i++) {
-    for (j = 0; j < n; j++) {
-      solution.toggle(i,j);
-      if (solution.hasAnyRowConflicts() || solution.hasAnyColConflicts()) {
-        solution.toggle(i,j);
-      } else {
-        countRooks++;
-      }
-      if (countRooks >= n) {
-        return solution.rows();
-      }
+  var recurse = function(row, isDone) {
+    if (isDone = true) {
+      return;
     }
-  }
+
+    // BASE CASE
+    // if row === n, then return;
+    if (row === n) {
+      solution = board.rows().map(function(arr) {return arr.slice()}).slice();
+      isDone = true;
+      return;
+    }
+
+    // RECURSIVE CALL
+    // loop through each column (i) in row
+    for (var col = 0; col < n; col++) {
+      // add a rook
+      board.togglePiece(row,col);
+      // if no conflicts:
+      if (!board.hasAnyRooksConflicts()) {
+        // recurse (row + 1);
+        recurse(row+1);
+      }
+      // remove rook
+      board.togglePiece(row,col);      
+    }
+  };
+
+  var board = new Board({n:n});
+  recurse(0, false);
+
+  return solution;
 
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
 };
