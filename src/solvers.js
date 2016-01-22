@@ -20,7 +20,7 @@ window.findNRooksSolution = function(n) {
   var solution;
 
   var recurse = function(row, isDone) {
-    if (isDone = true) {
+    if (isDone === true) {
       return;
     }
 
@@ -92,7 +92,39 @@ window.countNRooksSolutions = function(n) {
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
+  var solution;
+  var recurse = function(row, isDone) {
+    if (isDone === true) {
+      return;
+    }
+
+    // BASE CASE
+    // if row === n, then return;
+    if (row === n) {
+      solution = board.rows().map(function(arr) {return arr.slice();}).slice();
+      isDone = true;
+      return;
+    }
+
+    // RECURSIVE CALL
+    // loop through each column (i) in row
+    for (var col = 0; col < n; col++) {
+      // add a rook
+      board.togglePiece(row,col);
+      // if no conflicts:
+      if (!board.hasAnyQueensConflicts()) {
+        // recurse (row + 1);
+        recurse(row+1);
+      }
+      // remove rook
+      board.togglePiece(row,col);      
+    }
+  };
+
+  var board = new Board({n:n});
+  recurse(0, false);
+
+  solution = solution || board.rows().map(function(arr) {return arr.slice();}).slice();
 
   console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
   return solution;
