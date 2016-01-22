@@ -12,7 +12,9 @@
 
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
-
+Board.prototype.toggle = function(y, x) {
+  this.attributes[y][x] = !this.attributes[y][x] * 1;
+}
 
 
 window.findNRooksSolution = function(n) {
@@ -21,9 +23,9 @@ window.findNRooksSolution = function(n) {
   var solution = new Board({n:n}); //matrix of one solution
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++) {
-      solution.togglePiece(i,j);
+      solution.toggle(i,j);
       if (solution.hasAnyRowConflicts() || solution.hasAnyColConflicts()) {
-        solution.togglePiece(i,j);
+        solution.toggle(i,j);
       } else {
         countRooks++;
       }
@@ -38,45 +40,56 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  if (n==2) debugger;
-  // total solutions count
   var solutionCount = 0;
+  var matrix = [];
+  //var solution = new Board({n:n});
+  for (var i = 0; i < n; i++) {
+    var matrixRow = []; 
+    for (var j = 0; j < n; j++) {
+      matrixRow.push(0);
+    }
+    matrix.push(matrixRow);
+  }
 
-  // create an empty board
-  var solution = new Board({n:n});
+  var checkRemaining = function(boardMatrix, startX, startY, countRooks) {
+    // if (n==2) debugger;
+    var matrix1 = boardMatrix.map(function(arr) {
+     return arr.slice();
+    }).slice();
+    var matrix2 = boardMatrix.map(function(arr) {
+     return arr.slice();
+    }).slice();
 
-  var checkRemaining = function(board, startX, startY, countRooks) {
+    var board1 = new Board(matrix1);
+    var board2 = new Board(matrix2);
     // base case is if startX and startY both equal n-1
     if (startX === n-1 && startY === n-1) {
       // add rook at startX, startY
-      board.togglePiece(startY, startX);
+      board1.togglePiece(startY, startX);
       countRooks++;
       // If there are conflicts
-      if (board.hasAnyRowConflicts() || board.hasAnyColConflicts()) {
-        // return
+      if (board1.hasAnyRowConflicts() || board1.hasAnyColConflicts()) {
         return;
-      } else if (countRooks === n) { // else if countRooks == n
-        // solutionCount++
+      } else if (countRooks === n) { 
         solutionCount++;
-        // return;
         return;
       } else {
         return;
       }
     }
     // add rook at startX, startY
-    board.togglePiece(startY, startX); 
+    board1.togglePiece(startY, startX); 
     countRooks++; 
     // if there are conflicts
-    if (board.hasAnyRowConflicts() || board.hasAnyColConflicts()) {
+    if (board1.hasAnyRowConflicts() || board1.hasAnyColConflicts()) {
       // remove rook
-      board.togglePiece(startY, startX); 
+      board1.togglePiece(startY, startX); 
       countRooks--;
       // increase startX/startY; 
       if (startX === n-1) {
-        checkRemaining(board, 0, startY + 1, countRooks);
+        checkRemaining(board1.rows(), 0, startY + 1, countRooks);
       } else {
-        checkRemaining(board, startX + 1, startY, countRooks);
+        checkRemaining(board1.rows(), startX + 1, startY, countRooks);
       }
     }
     // else if no conflicts
@@ -95,20 +108,20 @@ window.countNRooksSolutions = function(n) {
         var newX = startX+1;
         var newY = startY;
       }
-      // create newBoard(board.rows())
-      var newBoard = new Board(board.rows());
-      var newBoard2 = new Board(board.rows());
-      newBoard2.togglePiece(startY, startX);
+      // create newboard1(board1.rows())
+      var newBoardMatrix1 = board1.rows();
+      var newBoardMatrix2 = board2.rows();
+      //newBoard2[startY][startX] = 0;
       // recurse with (newBoard, newStartX/StartY, countRooks)
-      checkRemaining(newBoard, newX, newY, countRooks);
+      checkRemaining(newBoardMatrix1, newX, newY, countRooks);
       // remove the most recent rook from startX, startY
-      debugger;
+      // debugger;
       // recurse with (board, newStartX/startY, countRooks);
-      checkRemaining(newBoard2, newX, newY, countRooks-1);
+      checkRemaining(newBoardMatrix2, newX, newY, countRooks-1);
     }
   };
 
-  checkRemaining(solution, 0, 0, 0);
+  checkRemaining(matrix, 0, 0, 0);
 
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
